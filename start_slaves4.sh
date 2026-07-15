@@ -1,21 +1,45 @@
 #!/bin/bash
+
+# 1. Nettoyage de sécurité
+echo "[BASH] Nettoyage des anciens processus..."
 fuser -k 18812/tcp 2>/dev/null
-# 1. Lancement du Master en arrière-plan
+sleep 1
+
+# 2. Lancement du Master en arrière-plan
 python 4_master.py &
 sleep 2
 
-# 2. Lancement du Slave 1 et capture immédiate de son PID
-python 4_slave.py 1 &
-SLAVE_1_PID=$!
+# 3. Lancement des 6 Slaves et capture dynamique de leurs PIDs
+echo "[BASH] Lancement des 6 esclaves..."
+declare -A SLAVE_PIDS
 
-# 3. Lancement des autres Slaves
-python 4_slave.py 2 &
-python 4_slave.py 3 &
-python 4_slave.py 4 &
-python 4_slave.py 5 &
-python 4_slave.py 6 &
+for i in {1..6}; do
+    python 4_slave.py $i &
+    SLAVE_PIDS[$i]=$!
+done
 
-# 4. Attente active d'une seconde puis crash provoqué du Slave 1
-sleep 1
-kill -9 $SLAVE_1_PID
-echo -e "\n[BASH] 💥 LE SLAVE 1 A ÉTÉ CRASHÉ BRUTALEMENT (SIGKILL) !\n"
+# 4. On laisse les esclaves démarrer et commencer à travailler
+sleep 1.5
+
+# 5. Détermination du chaos (On choisit de tuer entre 1 et 3 esclaves au hasard)
+NB_TO_KILL=$(( 1 + RANDOM % 3 ))
+
+# On mélange la liste des IDs d'esclaves (1 à 6) grâce à 'shuf'
+SHUFFLED_SLAVES=($(shuf -e {1..6}))
+
+echo -e "\n[BASH] 🎲 Lancement de la roulette russe : Décision de tuer $NB_TO_KILL esclave(s)..."
+
+# 6. Exécution des sentences capitales 💥
+for ((i=0; i<NB_TO_KILL; i++)); do
+    SLAVE_ID=${SHUFFLED_SLAVES[$i]}
+    PID=${SLAVE_PIDS[$SLAVE_ID]}
+    
+    # Vérification que le processus est toujours vivant avant de le tuer
+    if kill -0 $PID 2>/dev/null; then
+        kill -9 $PID
+        echo -e "[BASH] 💥 LE SLAVE $SLAVE_ID (PID $PID) A ÉTÉ CRASHÉ BRUTALEMENT !"
+    else
+        echo -e "[BASH] ⚠️ Le Slave $SLAVE_ID était déjà arrêté."
+    fi
+done
+echo -e ""

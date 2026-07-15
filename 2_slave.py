@@ -12,8 +12,8 @@ def main(slave_id: str):
         sys.exit(1)
 
     while True:
-        # Récupération active de la tâche (Pull)
-        task = conn.root.get_task()
+        # On passe le slave_id pour que le Master l'affiche dans son tableau de bord
+        task = conn.root.get_task(slave_id)
         
         if task is None:
             print(f"[{slave_id}] Plus de fruits à traiter. Déconnexion.")
@@ -22,13 +22,13 @@ def main(slave_id: str):
         fruit_name, temps = task
         print(f"[{slave_id}] Découpe de {temps}x {fruit_name}...")
         
-        # Simulation du temps de traitement (0.1s par fruit)
+        # Simulation du temps de traitement
         time.sleep(temps)
         
-        result = f"{temps}x {fruit_name} découpé(e)(s) par {slave_id}"
+        result = f"{temps}x {fruit_name} prêt"
         
-        # Envoi du résultat au Master
-        conn.root.submit_result(slave_id, result)
+        # On informe le Master de l'identité du fruit traité pour le suivi
+        conn.root.submit_result(slave_id, fruit_name, result)
         
     conn.close()
 
