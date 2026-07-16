@@ -1,4 +1,4 @@
-# master.py
+# 2_master.py (Exercice 2 - Master de base)
 import rpyc
 from rpyc.utils.server import ThreadedServer
 import os
@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 
-FRUITS = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 2]]
+FRUITS = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 1]]
 
 class MasterService(rpyc.Service):
     lock = threading.Lock()
@@ -70,6 +70,7 @@ class MasterService(rpyc.Service):
         filled = int(progress // 5)
         bar = "█" * filled + "-" * (20 - filled)
         print(f"\nProgression globale : [{bar}] {progress:.0f}%")
+        sys.stdout.flush()
 
     def exposed_get_task(self, slave_id: str):
         """Distribue une tâche en attente et l'associe à l'ID de l'esclave."""
@@ -86,6 +87,8 @@ class MasterService(rpyc.Service):
         """Réceptionne le travail et conserve l'ID de l'esclave pour l'historique."""
         with MasterService.lock:
             if fruit_name in MasterService.tasks:
+                if MasterService.tasks[fruit_name]["status"] == "Terminé":
+                    return
                 MasterService.tasks[fruit_name]["status"] = "Terminé"
                 MasterService.tasks[fruit_name]["result"] = result
                 MasterService.completed_tasks += 1
@@ -93,6 +96,7 @@ class MasterService(rpyc.Service):
                 
                 if MasterService.completed_tasks == MasterService.total_tasks:
                     print("\n\033[92m\033[1m🎉 SUCCÈS : La salade de fruits est prête ! Bon appétit ! \033[0m\n")
+                    sys.stdout.flush()
                     
                     def shutdown():
                         time.sleep(1)

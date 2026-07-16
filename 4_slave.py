@@ -1,4 +1,4 @@
-# 2_slave.py
+# 4_slave.py (Exercice 4 - Slave Résilient)
 import rpyc
 import time
 import sys

@@ -1,4 +1,4 @@
-# slave.py
+# 2_slave.py (Exercice 2 - Slave de base)
 import rpyc
 import time
 import sys
