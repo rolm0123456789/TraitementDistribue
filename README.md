@@ -95,12 +95,9 @@ Cette version résout le problème de l'exercice 3 en implémentant des mécanis
 
 ## 🤖 Script de Vérification Globale
 
-Un script d'intégration complet `verify_all.py` a été développé et placé dans le répertoire des outils personnalisés afin de tester automatiquement tous les exercices, simuler le chaos et valider l'intégrité du code.
+Un script d'intégration `verify_all.py` a été utilisé pour valider automatiquement les exercices (il n'est pas inclus dans ce dépôt).
 
-Pour exécuter la suite de tests complète :
-```bash
-python /home/jules/self_created_tools/verify_all.py
-```
+Pour reproduire la vérification, exécutez les exercices manuellement (sections ci-dessus) ou fournissez votre propre script d'intégration.
 
 ### Résumé attendu de l'exécution :
 ```text
