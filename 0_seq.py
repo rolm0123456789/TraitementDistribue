@@ -1,7 +1,7 @@
 import time 
 
 start = time.time()
-fruits = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 1]]
+fruits = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 3]]
 
 for fruit in fruits:
     time.sleep(fruit[1])

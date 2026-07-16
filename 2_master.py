@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 
-FRUITS = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 1]]
+FRUITS = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 3]]
 
 class MasterService(rpyc.Service):
     lock = threading.Lock()
