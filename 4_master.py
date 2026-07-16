@@ -1,4 +1,4 @@
-# 2_master.py
+# 4_master.py (Exercice 4 - Master Résilient)
 import rpyc
 from rpyc.utils.server import ThreadedServer
 import os
@@ -87,6 +87,7 @@ class MasterService(rpyc.Service):
             # On n'affiche que les 5 derniers messages pour garder la console propre
             for event in cls.events[-5:]:
                 print(f"  {event}")
+        sys.stdout.flush()
 
     def exposed_get_task(self, slave_id: str):
         with self.lock:
@@ -145,6 +146,7 @@ class MasterService(rpyc.Service):
                     # Validation et arrêt propre une fois toutes les tâches complétées
                     if len(self.results) == self.total_tasks:
                         print("\n\033[92m\033[1m🎉 SUCCÈS : La salade de fruits résiliente est prête ! \033[0m\n")
+                        sys.stdout.flush()
                         
                         def shutdown():
                             time.sleep(1.5)  # Permet aux derniers clients de fermer proprement
