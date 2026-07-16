@@ -18,4 +18,4 @@ python 2_slave.py 6 &
 # 4. Attente active d'une seconde puis crash provoqué du Slave 1
 sleep 1
 kill -9 $SLAVE_1_PID
-echo -e "\n[BASH] 💥 LE SLAVE 1 A ÉTÉ CRASHÉ BRUTALEMENT (SIGKILL) !\n"
+echo -e "\n[BASH] LE SLAVE 1 A ÉTÉ CRASHÉ BRUTALEMENT (SIGKILL) !\n"

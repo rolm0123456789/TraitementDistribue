@@ -27,9 +27,9 @@ NB_TO_KILL=$(( 1 + RANDOM % 3 ))
 # On mélange la liste des IDs d'esclaves (1 à 6) grâce à 'shuf'
 SHUFFLED_SLAVES=($(shuf -e {1..6}))
 
-echo -e "\n[BASH] 🎲 Lancement de la roulette russe : Décision de tuer $NB_TO_KILL esclave(s)..."
+echo -e "\n[BASH] Lancement de la roulette russe : Décision de tuer $NB_TO_KILL esclave(s)..."
 
-# 6. Exécution des sentences capitales 💥
+# 6. Exécution des sentences capitales 
 for ((i=0; i<NB_TO_KILL; i++)); do
     SLAVE_ID=${SHUFFLED_SLAVES[$i]}
     PID=${SLAVE_PIDS[$SLAVE_ID]}
@@ -37,9 +37,9 @@ for ((i=0; i<NB_TO_KILL; i++)); do
     # Vérification que le processus est toujours vivant avant de le tuer
     if kill -0 $PID 2>/dev/null; then
         kill -9 $PID
-        echo -e "[BASH] 💥 LE SLAVE $SLAVE_ID (PID $PID) A ÉTÉ CRASHÉ BRUTALEMENT !"
+        echo -e "[BASH] LE SLAVE $SLAVE_ID (PID $PID) A ÉTÉ CRASHÉ BRUTALEMENT !"
     else
-        echo -e "[BASH] ⚠️ Le Slave $SLAVE_ID était déjà arrêté."
+        echo -e "[BASH] Le Slave $SLAVE_ID était déjà arrêté."
     fi
 done
 echo -e ""

@@ -30,7 +30,7 @@ class MasterService(rpyc.Service):
         """Efface la console et redessine le tableau de bord mis à jour."""
         os.system('clear' if os.name == 'posix' else 'cls')
         
-        print("\n\033[1m📊 SYSTÈME MASTER-SLAVE : PRÉPARATION DE LA SALADE\033[0m\n")
+        print("\n\033[1mSYSTÈME MASTER-SLAVE : PRÉPARATION DE LA SALADE\033[0m\n")
         
         # En-tête du tableau (Nouvelle colonne Slave ID de taille 10)
         divider = "+" + "-"*15 + "+" + "-"*12 + "+" + "-"*22 + "+" + "-"*12 + "+" + "-"*32 + "+"
@@ -56,7 +56,7 @@ class MasterService(rpyc.Service):
                 status_text = padded.replace(raw_text, f"\033[93m{raw_text}\033[0m") # Jaune
                 details = "Découpe en cours"
             else: # Terminé
-                raw_text = "Terminé ✓"
+                raw_text = "Terminé"
                 padded = raw_text.ljust(20)
                 status_text = padded.replace(raw_text, f"\033[92m{raw_text}\033[0m") # Vert
                 details = result
@@ -68,7 +68,7 @@ class MasterService(rpyc.Service):
         # Barre de progression dynamique
         progress = (cls.completed_tasks / cls.total_tasks) * 100
         filled = int(progress // 5)
-        bar = "█" * filled + "-" * (20 - filled)
+        bar = "" * filled + "-" * (20 - filled)
         print(f"\nProgression globale : [{bar}] {progress:.0f}%")
         sys.stdout.flush()
 
@@ -95,7 +95,7 @@ class MasterService(rpyc.Service):
                 MasterService._print_dashboard()
                 
                 if MasterService.completed_tasks == MasterService.total_tasks:
-                    print("\n\033[92m\033[1m🎉 SUCCÈS : La salade de fruits est prête ! Bon appétit ! \033[0m\n")
+                    print("\n\033[92m\033[1mSUCCÈS : La salade de fruits est prête ! Bon appétit ! \033[0m\n")
                     sys.stdout.flush()
                     
                     def shutdown():

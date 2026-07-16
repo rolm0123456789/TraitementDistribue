@@ -33,7 +33,7 @@ class MasterService(rpyc.Service):
         """Efface l'écran et redessine le tableau de bord complet de la V2."""
         os.system('clear' if os.name == 'posix' else 'cls')
         
-        print("\n\033[1m📊 SYSTÈME MASTER-SLAVE V2 : TOLÉRANCE AUX PANNES EN TEMPS RÉEL\033[0m\n")
+        print("\n\033[1mSYSTÈME MASTER-SLAVE V2 : TOLÉRANCE AUX PANNES EN TEMPS RÉEL\033[0m\n")
         
         # En-tête du tableau (Largeur optimisée)
         divider = "+" + "-"*15 + "+" + "-"*12 + "+" + "-"*22 + "+" + "-"*12 + "+" + "-"*32 + "+"
@@ -61,7 +61,7 @@ class MasterService(rpyc.Service):
                 details = "Découpe active"
             elif status == "COMPLETED":
                 completed_count = len(cls.results) # Utilise la liste finale validée
-                raw_text = "Terminé ✓"
+                raw_text = "Terminé"
                 padded = raw_text.ljust(20)
                 status_text = padded.replace(raw_text, f"\033[92m{raw_text}\033[0m") # Vert
                 details = f"{temps}x {fruit} prêt"
@@ -76,11 +76,11 @@ class MasterService(rpyc.Service):
         # Barre de progression globale
         progress = (completed_count / cls.total_tasks) * 100
         filled = int(progress // 5)
-        bar = "█" * filled + "-" * (20 - filled)
+        bar = "" * filled + "-" * (20 - filled)
         print(f"\nProgression globale : [{bar}] {progress:.0f}%")
         
         # Log des 5 derniers événements systèmes (timeouts, crashs, attributions)
-        print("\n\033[1m📜 HISTORIQUE DES ÉVÉNEMENTS SYSTEME (DEBUG) :\033[0m")
+        print("\n\033[1mHISTORIQUE DES ÉVÉNEMENTS SYSTEME (DEBUG) :\033[0m")
         if not cls.events:
             print("  En attente de l'activité des esclaves...")
         else:
@@ -101,7 +101,7 @@ class MasterService(rpyc.Service):
                     
                     if now - task["start_time"] > timeout_limit:
                         # On log le timeout dans l'historique
-                        msg = f"\033[91m[⏰ Timeout]\033[0m Slave {task['assigned_to']} injoignable sur '{task['fruit']}'. Réassignation."
+                        msg = f"\033[91m[Timeout]\033[0m Slave {task['assigned_to']} injoignable sur '{task['fruit']}'. Réassignation."
                         self.events.append(msg)
                         
                         task["status"] = "PENDING"
@@ -115,7 +115,7 @@ class MasterService(rpyc.Service):
                     task["assigned_to"] = slave_id
                     task["start_time"] = now
                     
-                    self.events.append(f"\033[93m[📥 Assigné]\033[0m Tâche '{task['fruit']}' attribuée au Slave {slave_id}")
+                    self.events.append(f"\033[93m[Assigné]\033[0m Tâche '{task['fruit']}' attribuée au Slave {slave_id}")
                     self._print_dashboard()
                     return "PROCESS", (task["id"], task["fruit"], task["temps"])
 
@@ -133,19 +133,19 @@ class MasterService(rpyc.Service):
                 if task["id"] == task_id:
                     # Protection : Si le résultat est soumis après un timeout (le fruit a déjà été réattribué et fini)
                     if task["status"] == "COMPLETED":
-                        msg = f"\033[90m[⚠️ Ignoré]\033[0m Résultat tardif du Slave {slave_id} pour '{task['fruit']}'"
+                        msg = f"\033[90m[Ignoré]\033[0m Résultat tardif du Slave {slave_id} pour '{task['fruit']}'"
                         self.events.append(msg)
                         self._print_dashboard()
                         return
                     
                     task["status"] = "COMPLETED"
-                    self.events.append(f"\033[92m[✅ Reçu]\033[0m Slave {slave_id} a terminé la découpe de '{task['fruit']}'")
+                    self.events.append(f"\033[92m[Reçu]\033[0m Slave {slave_id} a terminé la découpe de '{task['fruit']}'")
                     self.results.append(result)
                     self._print_dashboard()
                     
                     # Validation et arrêt propre une fois toutes les tâches complétées
                     if len(self.results) == self.total_tasks:
-                        print("\n\033[92m\033[1m🎉 SUCCÈS : La salade de fruits résiliente est prête ! \033[0m\n")
+                        print("\n\033[92m\033[1mSUCCÈS : La salade de fruits résiliente est prête ! \033[0m\n")
                         sys.stdout.flush()
                         
                         def shutdown():

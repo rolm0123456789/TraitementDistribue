@@ -42,7 +42,7 @@ class MasterService(rpyc.Service):
         """Efface la console et redessine le tableau de bord avec les IDs."""
         os.system('clear' if os.name == 'posix' else 'cls')
         
-        print("\n\033[1m📊 MASTER V3 : ORDONNANCEUR DE GRAPH PAR ID (RETRO-COMPATIBLE)\033[0m\n")
+        print("\n\033[1mMASTER V3 : ORDONNANCEUR DE GRAPH PAR ID (RETRO-COMPATIBLE)\033[0m\n")
         
         # En-tête du tableau avec la colonne ID
         divider = "+" + "-"*5 + "+" + "-"*12 + "+" + "-"*12 + "+" + "-"*18 + "+" + "-"*10 + "+" + "-"*35 + "+"
@@ -62,7 +62,7 @@ class MasterService(rpyc.Service):
             
             # Application des couleurs ANSI
             if status == "Verrouillé":
-                raw_text = "Verrouillé 🔒"
+                raw_text = "Verrouillé"
                 padded = raw_text.ljust(16)
                 status_text = padded.replace(raw_text, f"\033[90m{raw_text}\033[0m") # Gris
                 details = f"Attend les IDs : {deps}"
@@ -72,12 +72,12 @@ class MasterService(rpyc.Service):
                 status_text = padded.replace(raw_text, f"\033[94m{raw_text}...\033[0m") # Bleu
                 details = "Prêt à être assigné"
             elif status == "En cours":
-                raw_text = "En cours ⚙️"
+                raw_text = "En cours"
                 padded = raw_text.ljust(16)
                 status_text = padded.replace(raw_text, f"\033[93m{raw_text}\033[0m") # Jaune
                 details = "Découpe active"
             else: # Terminé
-                raw_text = "Terminé ✓"
+                raw_text = "Terminé"
                 padded = raw_text.ljust(16)
                 status_text = padded.replace(raw_text, f"\033[92m{raw_text}\033[0m") # Vert
                 details = result
@@ -89,16 +89,17 @@ class MasterService(rpyc.Service):
         # Progression globale
         progress = (completed_count / cls.total_tasks) * 100
         filled = int(progress // 5)
-        bar = "█" * filled + "-" * (20 - filled)
+        bar = "" * filled + "-" * (20 - filled)
         print(f"\nProgression globale : [{bar}] {progress:.0f}%")
         
         # Affichage des 5 derniers événements
-        print("\n\033[1m📜 JOURNAL DE L'ORDONNANCEUR (ID-BASED) :\033[0m")
+        print("\n\033[1mJOURNAL DE L'ORDONNANCEUR (ID-BASED) :\033[0m")
         if not cls.events:
             print("  En attente d'esclaves...")
         else:
             for event in cls.events[-5:]:
                 print(f"  {event}")
+        sys.stdout.flush()
 
     def exposed_get_task(self, slave_id=None):
         """Distribue une tâche prête. Accepte l'absence d'ID pour compatibilité V1."""
@@ -120,7 +121,7 @@ class MasterService(rpyc.Service):
                             info["status"] = "En attente"
                             info["worker"] = None
                             info["start_time"] = None
-                            self.events.append(f"\033[91m[⏰ Timeout]\033[0m {failed_worker} a échoué sur la tâche {task_id} ({info['name']}).")
+                            self.events.append(f"\033[91m[Timeout]\033[0m {failed_worker} a échoué sur la tâche {task_id} ({info['name']}).")
                             self._print_dashboard()
 
                 # 3. Déverrouillage des tâches (Vérification des IDs requis)
@@ -128,7 +129,7 @@ class MasterService(rpyc.Service):
                     if info["status"] == "Verrouillé":
                         if all(self.tasks[dep_id]["status"] == "Terminé" for dep_id in info["dependencies"]):
                             info["status"] = "En attente"
-                            self.events.append(f"\033[95m[🔓 Déverrouillé]\033[0m Tâche {task_id} ({info['name']}) prête.")
+                            self.events.append(f"\033[95m[Déverrouillé]\033[0m Tâche {task_id} ({info['name']}) prête.")
                             self._print_dashboard()
 
                 # 4. Recherche et attribution d'une tâche "En attente"
@@ -137,7 +138,7 @@ class MasterService(rpyc.Service):
                         info["status"] = "En cours"
                         info["worker"] = worker_name
                         info["start_time"] = now
-                        self.events.append(f"\033[93m[📥 Assigné]\033[0m Tâche {task_id} ({info['name']}) confiée à {worker_name}")
+                        self.events.append(f"\033[93m[Assigné]\033[0m Tâche {task_id} ({info['name']}) confiée à {worker_name}")
                         self._print_dashboard()
                         # Renvoie exactement ce que l'esclave V1 attend : [nom_du_fruit, temps]
                         return [info["name"], info["qty"]]
@@ -157,7 +158,7 @@ class MasterService(rpyc.Service):
                     break
             
             if target_id is None:
-                self.events.append(f"\033[91m[⚠️ Erreur]\033[0m Impossible d'associer le résultat de {slave_id} à une tâche : {result}")
+                self.events.append(f"\033[91m[Erreur]\033[0m Impossible d'associer le résultat de {slave_id} à une tâche : {result}")
                 self._print_dashboard()
                 return
 
@@ -165,7 +166,7 @@ class MasterService(rpyc.Service):
 
             # Protection contre les retours tardifs post-timeout
             if info["status"] == "Terminé":
-                self.events.append(f"\033[90m[⚠️ Ignoré]\033[0m Résultat obsolète de {slave_id} pour la tâche {target_id} ({info['name']})")
+                self.events.append(f"\033[90m[Ignoré]\033[0m Résultat obsolète de {slave_id} pour la tâche {target_id} ({info['name']})")
                 self._print_dashboard()
                 return
 
@@ -173,22 +174,23 @@ class MasterService(rpyc.Service):
             info["status"] = "Terminé"
             info["worker"] = slave_id # Met à jour le vrai ID de l'esclave si "Actif" était temporaire
             info["result"] = result.strip()
-            self.events.append(f"\033[92m[✅ Reçu]\033[0m {slave_id} a complété la tâche {target_id} ({info['name']})")
+            self.events.append(f"\033[92m[Reçu]\033[0m {slave_id} a complété la tâche {target_id} ({info['name']})")
 
             # Déverrouillage immédiat des tâches dépendantes
             for t_id, t_info in self.tasks.items():
                 if t_info["status"] == "Verrouillé":
                     if all(self.tasks[dep_id]["status"] == "Terminé" for dep_id in t_info["dependencies"]):
                         t_info["status"] = "En attente"
-                        self.events.append(f"\033[95m[🔓 Déverrouillé]\033[0m Tâche {t_id} ({t_info['name']}) débloquée.")
+                        self.events.append(f"\033[95m[Déverrouillé]\033[0m Tâche {t_id} ({t_info['name']}) débloquée.")
 
             self._print_dashboard()
 
             # Clôture propre une fois le graphe entièrement résolu
             completed_count = sum(1 for t in self.tasks.values() if t["status"] == "Terminé")
             if completed_count == self.total_tasks:
-                print("\n\033[92m\033[1m🎉 SUCCÈS : Graphe d'ordonnancement par ID terminé avec succès ! \033[0m\n")
-                
+                print("\n\033[92m\033[1mSUCCÈS : Graphe d'ordonnancement par ID terminé avec succès ! \033[0m\n")
+                sys.stdout.flush()
+
                 def shutdown():
                     time.sleep(1.5)
                     os._exit(0)

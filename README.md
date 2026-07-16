@@ -1,12 +1,12 @@
-# 🍏 Préparation de Salade de Fruits Distribuée - Architecture Master-Slave RPyC
+# Préparation de Salade de Fruits Distribuée - Architecture Master-Slave RPyC
 
 Ce projet est une démonstration complète d'une architecture distribuée de type **Master-Slave** (Maître-Esclave) implémentée en Python avec la bibliothèque **RPyC (Remote Python Call)**.
 
-Le cas d'usage consiste à paralléliser la préparation d'une salade de fruits composée de différents fruits nécessitant chacun un temps de découpe/préparation spécifique. À travers 5 étapes/exercices successifs, nous passons d'une version purement séquentielle à un système distribué de pointe doté d'un tableau de bord dynamique et d'une **tolérance complète aux pannes (résilience)**.
+Le cas d'usage consiste à paralléliser la préparation d'une salade de fruits composée de différents fruits nécessitant chacun un temps de découpe/préparation spécifique. À travers plusieurs étapes/exercices successifs, nous passons d'une version purement séquentielle à un système distribué de pointe : **tableau de bord dynamique**, **tolérance aux pannes (résilience)**, **ordonnancement par dépendances**, et **arrêt propre du Master** lorsque tous les esclaves meurent.
 
 ---
 
-## 🛠️ Configuration de l'environnement
+## Configuration de l'environnement
 
 Pour pouvoir exécuter les exercices, vous devez d'abord installer la dépendance `rpyc` et configurer les scripts de lancement. Un script automatisé `setup_env.sh` est fourni à cet effet.
 
@@ -21,9 +21,9 @@ Ce script va :
 
 ---
 
-## 📂 Détail des Exercices
+## Détail des Exercices
 
-### ⏱️ Exercice 0 : Version Séquentielle (`0_seq.py`)
+### Exercice 0 : Version Séquentielle (`0_seq.py`)
 Cette version simule la préparation séquentielle (une seule personne/un seul thread) de tous les fruits les uns après les autres.
 - **Liste des fruits & Temps de préparation :**
   - Pomme : 5 secondes
@@ -39,7 +39,7 @@ Cette version simule la préparation séquentielle (une seule personne/un seul t
 
 ---
 
-### 🔌 Exercice 1 : Client-Serveur RPyC Simple (`1_server.py` et `1_client.py`)
+### Exercice 1 : Client-Serveur RPyC Simple (`1_server.py` et `1_client.py`)
 Introduction à la communication RPC avec RPyC. Un serveur expose une méthode retournant la réponse universelle `42`, et un client s'y connecte pour la récupérer de manière transparente.
 - **Lancement du Serveur :**
   ```bash
@@ -52,7 +52,7 @@ Introduction à la communication RPC avec RPyC. Un serveur expose une méthode r
 
 ---
 
-### 📊 Exercice 2 : Système Master-Slave de Base (`2_master.py` & `2_slave.py`)
+### Exercice 2 : Système Master-Slave de Base (`2_master.py` & `2_slave.py`)
 Implémentation d'une distribution de tâches parallèle.
 - **Le Master (`2_master.py`)** maintient l'état global et affiche un **tableau de bord en temps réel dans la console** (avec couleurs ANSI et barre de progression globale). Il écoute sur le port par défaut de RPyC (`18812`).
 - **Les Slaves (`2_slave.py`)** se connectent au Master, demandent du travail de manière asynchrone, simulent la découpe du fruit attribué (`time.sleep`), puis soumettent leur résultat.
@@ -64,7 +64,7 @@ Implémentation d'une distribution de tâches parallèle.
 
 ---
 
-### 💥 Exercice 3 : Démonstration de Panne (Sans Résilience)
+### Exercice 3 : Démonstration de Panne (Sans Résilience)
 Que se passe-t-il si un esclave s'arrête brusquement au milieu de sa tâche dans le système de base ?
 Le script `start_slaves3.sh` lance le Master et les Slaves de l'Exercice 2, puis applique un signal de mort brutale (`SIGKILL -9`) sur le premier esclave (qui venait d'obtenir la préparation de la pomme).
 - **Lancement :**
@@ -75,7 +75,7 @@ Le script `start_slaves3.sh` lance le Master et les Slaves de l'Exercice 2, puis
 
 ---
 
-### 🛡️ Exercice 4 : Système Master-Slave Résilient (`4_master.py` & `4_slave.py`)
+### Exercice 4 : Système Master-Slave Résilient (`4_master.py` & `4_slave.py`)
 Cette version résout le problème de l'exercice 3 en implémentant des mécanismes de **tolérance aux pannes** et de **gestion du cycle de vie**.
 
 #### Concepts clés de la résilience :
@@ -93,42 +93,45 @@ Cette version résout le problème de l'exercice 3 en implémentant des mécanis
 
 ---
 
-## 🤖 Script de Vérification Globale
+### Exercice 5 : Ordonnancement par Graphe de Dépendances (`5_master.py` & `5_slave.py`)
+Cette version introduit un **ordonnancement par IDs** : certaines tâches ne peuvent démarrer qu'après la complétion d'autres (dépendances).
 
-Un script d'intégration `verify_all.py` a été utilisé pour valider automatiquement les exercices (il n'est pas inclus dans ce dépôt).
+#### Graphe des fruits :
+| ID | Fruit  | Temps | Dépendances      |
+|----|--------|-------|------------------|
+| 0  | pomme  | 5 s   | —                |
+| 1  | orange | 10 s  | —                |
+| 2  | banane | 3 s   | pomme (0)        |
+| 3  | kiwi   | 4 s   | orange (1)       |
+| 4  | fraise | 2 s   | banane (2), kiwi (3) |
 
-Pour reproduire la vérification, exécutez les exercices manuellement (sections ci-dessus) ou fournissez votre propre script d'intégration.
-
-### Résumé attendu de l'exécution :
-```text
-==============================================
-🚀 STARTING VERIFICATION OF ALL EXERCISES 🚀
-==============================================
-
---- Test Exercice 0 (Séquentiel) ---
-✅ Exercice 0: SUCCESS (took 23.02s)
-
---- Test Exercice 1 (RPyC Client/Serveur) ---
-✅ Exercice 1: SUCCESS
-
---- Test Exercice 2 (Master/Slave de base) ---
-✅ Exercice 2: SUCCESS
-
---- Test Exercice 4 (Master/Slave Résilient) ---
-✅ Exercice 4: SUCCESS
-
-================ SUMMARY ================
-Exercice 0  : PASSED
-Exercice 1  : PASSED
-Exercice 2  : PASSED
-Exercice 4  : PASSED
-=========================================
-🎉 ALL EXERCISES RUN CORRECTLY!
-```
+- Les tâches sans dépendances démarrent en `"En attente"` ; les autres sont `"Verrouillé"` jusqu'à ce que tous les IDs requis soient `"Terminé"`.
+- Le Master conserve la **tolérance aux timeouts** (réassignation) et un tableau de bord avec colonne ID.
+- **Lancement :**
+  ```bash
+  ./start_slaves5.sh
+  ```
+- *Note :* Le script peut tuer aléatoirement 1 à 3 esclaves (chaos) ; les dépendances restent respectées grâce aux slaves survivants.
 
 ---
 
-## 🌟 Points Forts du Système Distribue
-- **Dashboard Réactif :** Interface textuelle fluide affichant l'état précis (En attente, En cours, Terminé) de chaque fruit, l'identité de l'esclave assigné, une barre de progression dynamique de $0\%$ à $100\%$ et les logs des pannes en temps réel.
-- **Sécurité & Concurrence :** Utilisation de verrous de threads (`threading.Lock`) sur toutes les requêtes RPC pour éviter les conditions de concurrence critique lors de l'accès aux structures de données partagées du Master.
-- **Robustesse :** Résiste à la mort de la moitié de ses travailleurs sans perte de données et sans blocage.
+### Exercice 6 : Arrêt propre si tous les Slaves meurent (`6_master.py` & `6_slave.py`)
+Même en version résiliente, si **tous** les esclaves crashent, plus personne ne peut terminer le travail. Cet exercice ajoute la **détection de mort collective** et la **fermeture propre du serveur Master**.
+
+#### Concepts clés :
+1. **Suivi des connexions RPyC :** le Master enregistre chaque esclave via `on_connect` / `on_disconnect` et l'ID fourni à `get_task`.
+2. **Libération immédiate des tâches :** à la déconnexion (ou au timeout) d'un slave, ses tâches encore `"PROCESSING"` repassent en `"PENDING"`.
+3. **Extermination totale → arrêt propre :** dès qu'au moins un slave s'est connecté et qu'il n'en reste plus aucun vivant, le Master affiche un message d'arrêt, ferme le socket (`server.close()`), puis quitte le processus proprement — au lieu de rester bloqué indéfiniment.
+4. **Watchdog de secours :** un fil périodique nettoie les connexions mortes non signalées tout de suite (ex. après `kill -9`).
+5. **Succès normal :** si toutes les tâches sont quand même complétées, le Master s'arrête aussi proprement (comme en V4).
+
+- **Lancement de la simulation « tous les slaves meurent » :**
+  Le script `start_slaves6.sh` démarre le Master V6 et 6 esclaves, attend qu'ils prennent des tâches, puis applique un **SIGKILL sur tous les esclaves**, et vérifie que le Master s'arrête de lui-même :
+  ```bash
+  ./start_slaves6.sh
+  ```
+- **Observation :** le journal affiche successivement les morts (`[Mort]`, `[Libéré]`), puis :
+  `Tous les esclaves sont morts — tâches restantes abandonnées. Arrêt propre du serveur.`
+  Le script shell confirme le succès si le processus Master a disparu sous ~15 secondes.
+
+---
