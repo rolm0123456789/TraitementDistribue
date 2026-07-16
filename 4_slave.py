@@ -45,6 +45,6 @@ def main(slave_id: str):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python slave.py <slave_id>")
+print(f"Usage: python {sys.argv[0]} <slave_id>")
         sys.exit(1)
     main(sys.argv[1])
