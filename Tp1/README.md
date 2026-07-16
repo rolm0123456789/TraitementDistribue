@@ -8,7 +8,7 @@ Le cas d'usage consiste à paralléliser la préparation d'une salade de fruits 
 
 ## Configuration de l'environnement
 
-Pour pouvoir exécuter les exercices, vous devez d'abord installer la dépendance `rpyc` et configurer les scripts de lancement. Un script automatisé `setup_env.sh` est fourni à cet effet.
+Pour pouvoir exécuter les exercices, vous devez d'abord créer un **environnement virtuel Python** (`.venv`), y installer la dépendance `rpyc`, et configurer les scripts de lancement. Un script automatisé `setup_env.sh` est fourni à cet effet.
 
 ### Lancement automatique de la configuration
 ```bash
@@ -16,8 +16,16 @@ bash setup_env.sh
 ```
 
 Ce script va :
-1. Installer la bibliothèque `rpyc` via `pip`.
-2. Attribuer les permissions d'exécution (`chmod +x`) aux différents scripts shell de test.
+1. Créer un virtualenv local `.venv` (via `python3 -m venv`) s'il n'existe pas déjà.
+2. Activer ce venv et y installer `rpyc` avec `pip`.
+3. Attribuer les permissions d'exécution (`chmod +x`) aux scripts shell de test.
+
+### Activation manuelle (optionnel)
+Les scripts `start_slaves*.sh` activent automatiquement le venv. Pour lancer un master/slave à la main :
+```bash
+source .venv/bin/activate
+python 2_master.py
+```
 
 ---
 

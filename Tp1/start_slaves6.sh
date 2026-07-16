@@ -4,7 +4,8 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-if [-f ".venv/bin/activate" ]; then
+if [ -f ".venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
     source .venv/bin/activate
 fi
 
@@ -24,7 +25,7 @@ if ! kill -0 "$MASTER_PID" 2>/dev/null; then
     exit 1
 fi
 
-# 3. Lancement des 6 Slaves (API compatible 4_slave) et capture des PIDs
+# 3. Lancement des 6 Slaves et capture des PIDs
 echo "[BASH] Lancement des 6 esclaves..."
 declare -A SLAVE_PIDS
 

@@ -1,4 +1,13 @@
 #!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
+if [ -f ".venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
+    source .venv/bin/activate
+fi
+
 fuser -k 18812/tcp 2>/dev/null
 # 1. Lancement du Master en arrière-plan
 python 2_master.py &

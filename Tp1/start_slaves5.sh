@@ -3,7 +3,8 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-if [-f ".venv/bin/activate" ]; then
+if [ -f ".venv/bin/activate" ]; then
+    # shellcheck disable=SC1091
     source .venv/bin/activate
 fi
 
@@ -36,7 +37,7 @@ SHUFFLED_SLAVES=($(shuf -e {1..6}))
 
 echo -e "\n[BASH] Lancement de la roulette russe : Décision de tuer $NB_TO_KILL esclave(s)..."
 
-# 6. Exécution des sentences capitales 
+# 6. Exécution des sentences capitales
 for ((i=0; i<NB_TO_KILL; i++)); do
     SLAVE_ID=${SHUFFLED_SLAVES[$i]}
     PID=${SLAVE_PIDS[$SLAVE_ID]}
