@@ -6,6 +6,18 @@ import sys
 import threading
 import time
 
+# Force stdout/stderr to UTF-8 to handle box-drawing, emojis, and accents on Windows/all platforms
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 FRUITS = [['pomme', 5], ['banane', 3], ['orange', 10], ['kiwi', 4], ['fraise', 3]]
 
 class MasterService(rpyc.Service):
@@ -76,7 +88,7 @@ class MasterService(rpyc.Service):
         # Barre de progression globale
         progress = (completed_count / cls.total_tasks) * 100
         filled = int(progress // 5)
-        bar = "" * filled + "-" * (20 - filled)
+        bar = "█" * filled + "-" * (20 - filled)
         print(f"\nProgression globale : [{bar}] {progress:.0f}%")
         
         # Log des 5 derniers événements systèmes (timeouts, crashs, attributions)

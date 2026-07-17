@@ -8,6 +8,18 @@ import shutil
 import sys
 from collections.abc import Sequence
 
+# Force stdout/stderr to UTF-8 to handle box-drawing, emojis, and accents on Windows/all platforms
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # ── Couleurs ANSI ────────────────────────────────────────────────────────────
 
 _USE_COLOR = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()

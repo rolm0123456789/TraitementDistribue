@@ -6,6 +6,18 @@ import sys
 import threading
 import time
 
+# Force stdout/stderr to UTF-8 to handle box-drawing, emojis, and accents on Windows/all platforms
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # Configuration propre : chaque tâche possède un ID unique (0, 1, 2...)
 # Format : [ID, Nom du fruit, Temps de découpe, [IDs des dépendances requises]]
 FRUITS_CONFIG = [
@@ -89,7 +101,7 @@ class MasterService(rpyc.Service):
         # Progression globale
         progress = (completed_count / cls.total_tasks) * 100
         filled = int(progress // 5)
-        bar = "" * filled + "-" * (20 - filled)
+        bar = "█" * filled + "-" * (20 - filled)
         print(f"\nProgression globale : [{bar}] {progress:.0f}%")
         
         # Affichage des 5 derniers événements
